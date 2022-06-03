@@ -34,8 +34,6 @@ public:
 	// of arr to be sorted */
 	void mergeSort(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui, int const begin, int const end);
 
-
-
 	void quickSort(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui, int start, int end);
 };
 
@@ -55,12 +53,11 @@ public:
 	void setup(sf::RenderWindow &window) {
 
 		sf::Color textColour = sf::Color(166, 167, 163);
-		//tgui::Theme::setDefault("C:/TGUI-0.9/themes/Black.txt");
+
 		tgui::Theme theme("C:/TGUI-0.9/themes/Black.txt");
-		//tgui::Font font;
+
 		gui.setTarget(window);
-		auto panel = tgui::Panel::create({ "25%", "100%" });
-		//panel->setPosition(0, 0);
+		auto panel = tgui::Panel::create({ "25%", "100%" });;
 		gui.add(panel);
 		panel->setPosition(windowSize.x - panel->getFullSize().x, 0);
 		panel->setRenderer(theme.getRenderer("Panel"));
@@ -89,6 +86,18 @@ public:
 		comboBox->setSelectedItem("Bubble Sort");
 		panel->add(comboBox);
 
+		auto listRenderer = tgui::ListBoxRenderer(comboBox->getSharedRenderer()->getListBox());
+		listRenderer.setBackgroundColor(sf::Color(61, 62, 63));
+		listRenderer.setBackgroundColorHover(sf::Color(71, 72, 73));
+		listRenderer.setSelectedBackgroundColor(sf::Color(81, 82, 83));
+		listRenderer.setSelectedBackgroundColorHover(sf::Color(81, 82, 83));
+		listRenderer.setSelectedTextColor(textColour);
+		listRenderer.setTextColor(textColour);
+		listRenderer.setTextColorHover(textColour);
+		
+		//panel->add(listRenderer);
+
+
 		label = tgui::Label::create("Number of bars:");
 		label->getRenderer()->setTextColor(textColour);
 		label->setOrigin(0.5, 0.5);
@@ -116,7 +125,7 @@ public:
 		button->getRenderer()->setBackgroundColorDisabled(sf::Color(51, 51, 51));
 		button->getRenderer()->setTextColor(textColour);
 		button->getRenderer()->setTextColorDown(textColour);
-		button->getRenderer()->setTextColorHover(sf::Color(135, 135, 135));
+		button->getRenderer()->setTextColorHover(sf::Color(textColour));
 		button->getRenderer()->setBorderColorFocused(sf::Color(textColour));
 		button->setSize({ "70%", "8%" });
 		button->setOrigin(0.5, 0.5);
@@ -131,15 +140,14 @@ public:
 		button->getRenderer()->setBackgroundColorDown(sf::Color(51, 51, 51));
 		button->getRenderer()->setTextColor(textColour);
 		button->getRenderer()->setTextColorDown(textColour);
-		button->getRenderer()->setTextColorHover(sf::Color(135, 135, 135));
+		button->getRenderer()->setTextColorHover(sf::Color(textColour));
 		button->getRenderer()->setBorderColorFocused(sf::Color(textColour));
 		button->setSize({ "70%", "8%" });
 		button->setOrigin(0.5, 0.5);
 		button->setPosition({ "50%","80%" });
 		button->setTextSize(25);
 		panel->add(button);
-		button->onPress(&Sort::randomize,&sort,std::ref(bars),std::ref(window),std::ref(gui));
-		//button->onPress(&test1);
+		button->onPress(&Sort::randomize, &sort, std::ref(bars), std::ref(window), std::ref(gui));
 
 		button = tgui::Button::create("Sort");
 		button->getRenderer()->setBackgroundColor(sf::Color(61, 62, 63));
@@ -148,9 +156,8 @@ public:
 		button->getRenderer()->setBackgroundColorDisabled(sf::Color(51, 51, 51));
 		button->getRenderer()->setTextColor(textColour);
 		button->getRenderer()->setTextColorDown(textColour);
-		button->getRenderer()->setTextColorHover(sf::Color(135, 135, 135));
+		button->getRenderer()->setTextColorHover(sf::Color(textColour));
 		button->getRenderer()->setBorderColorFocused(sf::Color(textColour));
-		//button->getRenderer()->setTextColorDownDisabled(sf::Color());
 		button->setSize({ "70%", "8%" });
 		button->setOrigin(0.5, 0.5);
 		button->setPosition({ "50%","90%" });
@@ -158,21 +165,22 @@ public:
 		panel->add(button);
 		button->onPress(&Logic::startSort,this, std::ref(bars), std::ref(window), std::ref(gui),comboBox);
 
-		//button = tgui::Button::create("Cancel");
-		//button->getRenderer()->setBackgroundColor(sf::Color(61, 62, 63));
-		//button->getRenderer()->setBackgroundColorHover(sf::Color(70, 70, 70));
-		//button->getRenderer()->setBackgroundColorDown(sf::Color(51, 51, 51));
-		//button->getRenderer()->setBackgroundColorDisabled(sf::Color(51, 51, 51));
-		//button->getRenderer()->setTextColor(textColour);
-		//button->getRenderer()->setTextColorDown(textColour);
-		//button->getRenderer()->setTextColorHover(sf::Color(135, 135, 135));
-		//button->getRenderer()->setBorderColorFocused(sf::Color(166, 167, 163));
-		////button->getRenderer()->setTextColorDownDisabled(sf::Color());
-		//button->setSize({ "70%", "8%" });
-		//button->setOrigin(0.5, 0.5);
-		//button->setPosition({ "50%","90%" });
-		//button->setTextSize(25);
-		//panel->add(button);
+		button = tgui::Button::create("Cancel");
+		button->getRenderer()->setBackgroundColor(sf::Color(61, 62, 63));
+		button->getRenderer()->setBackgroundColorHover(sf::Color(70, 70, 70));
+		button->getRenderer()->setBackgroundColorDown(sf::Color(51, 51, 51));
+		button->getRenderer()->setBackgroundColorDisabled(sf::Color(51, 51, 51));
+		button->getRenderer()->setTextColor(textColour);
+		button->getRenderer()->setTextColorDown(textColour);
+		button->getRenderer()->setTextColorHover(sf::Color(textColour));
+		button->getRenderer()->setBorderColorFocused(sf::Color(166, 167, 163));
+		//button->getRenderer()->setTextColorDownDisabled(sf::Color());
+		button->setSize({ "70%", "8%" });
+		button->setOrigin(0.5, 0.5);
+		button->setPosition({ "50%","90%" });
+		button->setTextSize(25);
+		button->setVisible(false);
+		panel->add(button);
 	}
 
 	//Places the bar according to number specifed 
@@ -209,6 +217,7 @@ public:
 		}
 		
 	}
+
 	//update the window and gui
 	void update(sf::RenderWindow& window, tgui::GuiSFML& gui,std::vector <sf::RectangleShape>& bars) {
 		sf::Event event;
@@ -218,18 +227,14 @@ public:
 
 			if (event.type == event.Closed)
 				window.close();
-
 		}
 		//update
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-			//Bubble(bars, window);
-			//insertionSort(bars, window);
-			//mergeSort(bars, window, 0, bars.size() - 1);
-			//sort.quickSort(bars, window, 0, bars.size() - 1);
+			
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-			//sort.randomize(bars, window);
+			
 		}
 		//draw
 		for (auto& i : bars) {
