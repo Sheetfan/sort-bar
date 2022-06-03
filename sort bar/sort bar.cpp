@@ -19,6 +19,7 @@ private:
 // First subarray is arr[begin..mid]
 // Second subarray is arr[mid+1..end]
 	void merge(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui, int const left, int const mid, int const right);
+	
 	void swap(std::vector <sf::RectangleShape>& bars, int i, int k);
 
 public:
@@ -27,7 +28,6 @@ public:
 	void Bubble(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui);
 
 	void insertionSort(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui);
-
 
 	// begin is for left index and end is
 	// right index of the sub-array
@@ -38,11 +38,16 @@ public:
 };
 
 class Logic {
-
+	bool toggled = true;
+	bool buttonPressed = false;
+	sf::Vector2f panelPos;
 public:
 	Sort sort;
+	
 	std::vector <sf::RectangleShape>bars;
+	
 	tgui::GuiSFML gui;
+	
 	Logic(sf::RenderWindow& window) {
 		setup(window);
 	}
@@ -68,7 +73,7 @@ public:
 		label->setPosition({ "50%","10%" });
 		label->setTextSize(25);
 		panel->add(label,"Panel");
-
+		panelPos = panel->getPosition();
 		auto comboBox = tgui::ComboBox::create();
 		comboBox->getRenderer()->setBackgroundColor(sf::Color(61, 62, 63));
 		comboBox->getRenderer()->setArrowBackgroundColor(sf::Color(21, 21, 21));
@@ -132,7 +137,7 @@ public:
 		button->setPosition({ "50%","70%" });
 		button->setTextSize(25);
 		panel->add(button);
-		button->onPress(&Logic::setBar, this, std::ref(window), editBox, panel);
+		button->onPress(&Logic::setBar, this, std::ref(window), editBox);
 
 		button = tgui::Button::create("Randomize");
 		button->getRenderer()->setBackgroundColor(sf::Color(61, 62, 63));
@@ -184,19 +189,20 @@ public:
 	}
 
 	//Places the bar according to number specifed 
-	void setBar(sf::RenderWindow& window, tgui::EditBox::Ptr number, tgui::Panel::Ptr panel) {
+	void setBar(sf::RenderWindow& window, tgui::EditBox::Ptr number) {
 		sf::RectangleShape bar;
 		bars.clear();
 		int numbers = number->getText().toInt();
 		for (int i = 0; i < numbers; i++) {
 			
-			bar.setSize(sf::Vector2f(panel->getPosition().x / float(numbers), -(windowSize.y * ((i + 1.f) / float(numbers)))));
+			bar.setSize(sf::Vector2f(panelPos.x / float(numbers), -(windowSize.y * ((i + 1.f) / float(numbers)))));
 			bars.push_back(sf::RectangleShape(bar));
 			bars[i].setPosition(i * bar.getSize().x, windowSize.y);
 		}
 		this->update(window,gui,bars);
 
 	}
+
 	//starts the sort
 	void startSort(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window,tgui::GuiSFML &gui, tgui::ComboBox::Ptr sorts) {
 		if (bars.size() > 0 ) {
@@ -233,9 +239,7 @@ public:
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
 			
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-			
-		}
+		toggle(window);
 		//draw
 		for (auto& i : bars) {
 			window.draw(i);
@@ -243,6 +247,40 @@ public:
 		gui.draw();
 		window.display();
 	}
+	void toggle(sf::RenderWindow& window) {
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) && !buttonPressed) {
+			if (!toggled) {
+
+				setup(window);
+
+				for (int i = 0; i < bars.size(); i++) {
+					bars[i].setSize(sf::Vector2f(panelPos.x / float(bars.size()), bars[i].getSize().y));
+					bars[i].setPosition(i * bars[i].getSize().x, windowSize.y);
+				}
+				toggled = true;
+			}
+			else {
+
+				gui.removeAllWidgets();
+				for (auto& i : bars) {
+					for (int i = 0; i < bars.size(); i++) {
+						bars[i].setSize(sf::Vector2f(windowSize.x / float(bars.size()), bars[i].getSize().y));
+						bars[i].setPosition(i * bars[i].getSize().x, windowSize.y);
+					}
+				}
+				toggled = false;
+			}
+			buttonPressed = true;
+		}
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::R) && buttonPressed) {
+			buttonPressed = false;
+		}
+		
+	}
+
+
+
+
 };
 
 int Sort::partition(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui, int start, int end) {
@@ -446,7 +484,6 @@ int main() {
 	srand(time(NULL));
 	sf::RenderWindow window(sf::VideoMode(windowSize.x, windowSize.y), "Sorting visual", sf::Style::Close);
 
-	
 	Logic logic(window);
 	
 	while (window.isOpen()) {
