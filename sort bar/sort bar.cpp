@@ -6,9 +6,13 @@
 #include <vector>
 #include <array>
 #include <cstdlib>
+#include <random>
 
 
 const sf::Vector2f windowSize = sf::Vector2f(1600.f, 800.f);
+
+//template <class RandomAccessIterator, class URNG>
+
 
 class Logic;
 class Sort {
@@ -20,10 +24,18 @@ private:
 // Second subarray is arr[mid+1..end]
 	void merge(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui, int const left, int const mid, int const right);
 	
-	void swap(std::vector <sf::RectangleShape>& bars, int i, int k);
+	template <class T>
+	void swap(std::vector <sf::RectangleShape>& bars, int i, int k, T& a, T& b) {
+		T c(std::move(a)); a = std::move(b); b = std::move(c);
+	}
 
 public:
-	void randomize(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui);
+	template <class RandomAccessIterator, class URNG>
+	void shuffle(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui
+		, int i, int k, RandomAccessIterator first, RandomAccessIterator last, URNG&& g);
+	
+	void ramod
+	//void shuffle(std::vector<sf::RectangleShape>::iterator first, std::vector<sf::RectangleShape>::iterator last, std::random_device&& g);
 
 	void Bubble(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui);
 
@@ -152,7 +164,7 @@ public:
 		button->setPosition({ "50%","80%" });
 		button->setTextSize(25);
 		panel->add(button);
-		button->onPress(&Sort::randomize, &sort, std::ref(bars), std::ref(window), std::ref(gui));
+		button->onPress(&Sort::shuffle, &sort, bars.begin(), bars.end(), std::random_device());
 
 		button = tgui::Button::create("Sort");
 		button->getRenderer()->setBackgroundColor(sf::Color(61, 62, 63));
@@ -278,9 +290,6 @@ public:
 		
 	}
 
-
-
-
 };
 
 int Sort::partition(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui, int start, int end) {
@@ -324,6 +333,7 @@ int Sort::partition(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& wi
 
 	return pivotIndex;
 }
+
 // Merges two subarrays of array[].
 // First subarray is arr[begin..mid]
 // Second subarray is arr[mid+1..end]
@@ -384,11 +394,19 @@ void Sort::merge(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& windo
 			logic.update(window, gui, bars);
 		}
 }
-void Sort::swap(std::vector <sf::RectangleShape>& bars, int i, int k) {
+
+template <class T>
+void Sort::swap(std::vector <sf::RectangleShape>& bars, int i, int k, T& a, T& b) {
 	sf::RectangleShape temp = bars[i];
-	bars[i].setSize(sf::Vector2f(bars[k].getSize().x, bars[k].getSize().y));
-	bars[k].setSize(sf::Vector2f(temp.getSize().x, temp.getSize().y));
+	sf::Vector2f ptemp = bars[i].getPosition();
+	/*bars[i].setSize(sf::Vector2f(bars[k].getSize().x, bars[k].getSize().y));
+	bars[k].setSize(sf::Vector2f(temp.getSize().x, temp.getSize().y));*/
+	bars[i] = bars[k];
+	bars[k] = temp;
+	bars[i].setPosition(bars[k].getPosition());
+	bars[k].setPosition(ptemp);
 }
+
 
 
 void Sort::randomize(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui) {
@@ -398,6 +416,16 @@ void Sort::randomize(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& w
 		swap(bars, i, j);
 		logic.update(window,gui, bars);
 
+	}
+}
+template <class RandomAccessIterator, class URNG>
+void Sort::shuffle(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui
+	, int i, int k, RandomAccessIterator first, RandomAccessIterator last, URNG&& g) {
+	Logic logic;
+	for (auto i = (last - first) - 1; i > 0; --i) {
+		std::uniform_int_distribution<decltype(i)> d(0, i);
+		qwer::swap(first[i], first[d(g)]);
+		logic.update(window, gui, bars);
 	}
 }
 
@@ -446,8 +474,6 @@ void Sort::insertionSort(std::vector <sf::RectangleShape>& bars, sf::RenderWindo
 	}
 }
 
-
-
 // begin is for left index and end is
 // right index of the sub-array
 // of arr to be sorted */
@@ -460,8 +486,6 @@ void Sort::mergeSort(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& w
 	mergeSort(bars, window, gui, mid + 1, end);
 	merge(bars, window, gui, begin, mid, end);
 }
-
-
 
 void Sort::quickSort(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& window, tgui::GuiSFML& gui, int start, int end) {
 
@@ -478,7 +502,6 @@ void Sort::quickSort(std::vector <sf::RectangleShape>& bars, sf::RenderWindow& w
 	// Sorting the right part
 	quickSort(bars, window, gui, p + 1, end);
 }
-
 
 int main() {
 	srand(time(NULL));
